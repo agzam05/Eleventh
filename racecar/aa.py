@@ -1,0 +1,112 @@
+import sys,pygame,random,time
+from pygame.locals import *
+pygame.init()
+coin_sound = pygame.mixer.Sound("coi.mp3")
+crash_sound = pygame.mixer.Sound("crash.wav")
+ba = pygame.mixer.Sound("background.wav")
+HEIGHT,WIDTH=650,350
+SPEED=5
+SCORE=0
+font=pygame.font.SysFont("Verdana", 60)
+smallf=pygame.font.SysFont("Verdana", 30)
+gameover=font.render("Game Over", True, (0,0,0))
+FPS=pygame.time.Clock()
+screen=pygame.display.set_mode((WIDTH, HEIGHT))
+back=pygame.image.load("road.png")
+bac=pygame.transform.scale(back, (WIDTH, HEIGHT))
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.imae=pygame.image.load("Enemy.png")
+        self.image=pygame.transform.scale(self.imae, (70, 100))
+        self.rect=self.image.get_rect()
+        self.rect.center = (random.randint(75, WIDTH - 75), -50)
+    def move(self):
+        global SCORE
+        self.rect.move_ip(0, 5)
+        if (self.rect.top>650):
+            SCORE+=5
+            self.rect.bottom=0
+            self.rect.center=(random.randint(75, 300), 0)
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.imae=pygame.image.load("Player.png")
+        self.image=pygame.transform.scale(self.imae, (70, 100))
+        self.rect=self.image.get_rect()
+        self.rect.center=(175, 600)
+    def move(self):
+        self.keys=pygame.key.get_pressed()
+        if self.keys[K_LEFT] and self.rect.left>0:
+            self.rect.move_ip(-5, 0)
+        if self.keys[K_RIGHT] and self.rect.right<350:
+            self.rect.move_ip(5, 0)
+class Point(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.imae=pygame.image.load("coin.png")
+        self.image=pygame.transform.scale(self.imae,(30,30))
+        self.rect=self.image.get_rect()
+        self.rect.center= (random.randint(30, 320), -30)
+    def move(self):
+        self.rect.move_ip(0, 5)
+        if self.rect.top>650:
+            self.rect.bottom=0
+            self.rect.center= (random.randint(30, WIDTH-30), 0)
+
+P1=Player()
+E1=Enemy()
+C1=Point()
+enemies=pygame.sprite.Group()
+enemies.add(E1)
+all_coins=pygame.sprite.Group()
+all_coins.add(C1)
+allspc=pygame.sprite.Group()
+allspc.add(P1, E1)
+all_sprites=pygame.sprite.Group()
+all_sprites.add(P1, E1, C1)
+INC_SPEED = pygame.USEREVENT + 1
+ADD_POINTS= INC_SPEED + 1 
+pygame.time.set_timer(ADD_POINTS, 5000)
+pygame.time.set_timer(INC_SPEED, 1000)
+running=True
+while running:
+    ba.play(-1)
+    for event in pygame.event.get():
+        if event.type==QUIT:
+            running=False
+        if event.type==INC_SPEED:
+            SPEED+=0.5
+        
+        
+    screen.blit(bac, (0,0))
+    scores=smallf.render(str(SCORE), True, (255, 255, 255))
+    screen.blit(scores, (10,10))
+    for entity in all_sprites:
+        screen.blit(entity.image, entity.rect)
+        entity.move()
+    if pygame.sprite.spritecollideany(P1, all_coins):
+        ba.stop()
+        coin_sound.play()
+        SCORE+=10
+        ba.play()
+        pygame.display.update()
+        for coin in all_coins:
+            coin.kill()
+            break
+        C1=Point()
+        all_coins.add(C1)
+        all_sprites.add(C1)
+    if pygame.sprite.spritecollideany(P1, enemies):
+        ba.stop()
+        crash_sound.play()
+        screen.fill((255, 0, 0))
+        screen.blit(gameover, (5,200))
+        pygame.display.update()
+        time.sleep(2)
+        pygame.quit()
+        sys.exit()
+    pygame.display.update()
+    FPS.tick(60)
+
+
