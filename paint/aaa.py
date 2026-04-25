@@ -1,4 +1,5 @@
 import pygame
+import math
 from pygame.locals import *
 pygame.init()
 screen=pygame.display.set_mode((800,600))
@@ -7,6 +8,7 @@ radius=10
 mode="draw"
 color=(0,0,255)
 points=[]
+point=[]
 starts_pos=None
 drawing=False
 def Drawline(screen,points, color,radius):
@@ -26,6 +28,14 @@ while running:
                 mode="draw"
             elif event.key==K_e:
                 mode="erase"
+            elif event.key==K_s:
+                mode="square"
+            elif event.key==K_9:
+                mode="90triangle"
+            elif event.key==K_h:
+                mode="rhombus"
+            elif event.key==K_t:
+                mode="triangle"
             elif event.key==K_1:
                 color=(255, 0, 0)
             elif event.key==K_2:
@@ -54,6 +64,16 @@ while running:
                 dy=end_pos[1]-starts_pos[1]
                 r=int(((dx**2)+(dy**2))**0.5)
                 pygame.draw.circle(screen, color, starts_pos, r, radius)
+            elif mode=="90triangle":
+                point=[starts_pos,(end_pos[0],starts_pos[1]) , end_pos]
+                pygame.draw.polygon(screen, color, point, radius)
+            elif mode=="square":
+                rect=pygame.Rect(starts_pos[0], starts_pos[1], (end_pos[0]-starts_pos[0]), (end_pos[0]-starts_pos[0]) )
+                pygame.draw.rect(screen, color, rect, radius)
+            elif mode=="triangle":
+                point = [starts_pos,end_pos,(starts_pos[0], end_pos[1])]
+                pygame.draw.polygon(screen, color, point)
+                
         if drawing and mode in ["draw", "erase"]:
             if mode=="erase":
                 color=(0,0,0)
