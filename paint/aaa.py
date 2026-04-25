@@ -70,9 +70,7 @@ while running:
             elif mode=="square":
                 rect=pygame.Rect(starts_pos[0], starts_pos[1], (end_pos[0]-starts_pos[0]), (end_pos[0]-starts_pos[0]) )
                 pygame.draw.rect(screen, color, rect, radius)
-            elif mode=="triangle":
-                point = [starts_pos,end_pos,(starts_pos[0], end_pos[1])]
-                pygame.draw.polygon(screen, color, point)
+
                 
         if drawing and mode in ["draw", "erase"]:
             if mode=="erase":
